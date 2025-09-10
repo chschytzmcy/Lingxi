@@ -13,18 +13,19 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.prebuilt import ToolNode
 from swerex.runtime.abstract import CreateBashSessionRequest, BashAction, Command, WriteFileRequest, CloseBashSessionRequest
 from swerex.deployment.docker import DockerDeployment
-from src.agent import runtime_config
-from src.agent.runtime_config import RuntimeType
-from src.agent.constant import PATCH_RESULT_DIR, RUNTIME_DIR
-from src.agent.tool_set.constant import MAX_LIST_FILES, MAX_RESPONSE_LEN_CHAR, FILE_CONTENT_TRUNCATED_NOTICE
-from src.agent.tool_set.utils import get_runtime_config
-from src.agent.tool_set.edit_tool import str_replace_editor
+from agent import runtime_config
+from agent.runtime_config import RuntimeType
+from agent.constant import PATCH_RESULT_DIR, RUNTIME_DIR
+from agent.tool_set.constant import MAX_LIST_FILES, MAX_RESPONSE_LEN_CHAR, FILE_CONTENT_TRUNCATED_NOTICE
+from agent.tool_set.utils import get_runtime_config
+from agent.tool_set.edit_tool import str_replace_editor
 from swerex.exceptions import CommandTimeoutError
-from src.agent.logging_config import get_logger
+from agent.logging_config import get_logger
 
 
 def prepare_input_dir(in_dir, config: RunnableConfig = None):
-    rc = get_runtime_config(config)
+    # rc = get_runtime_config(config)
+    rc = runtime_config.RuntimeConfig()
     assert rc.initialized
 
     if in_dir == ".":
@@ -33,7 +34,8 @@ def prepare_input_dir(in_dir, config: RunnableConfig = None):
     
     
 def prepare_output_dir(out_dir, config: RunnableConfig = None):
-    rc = get_runtime_config(config)
+    # rc = get_runtime_config(config)
+    rc = runtime_config.RuntimeConfig()
     assert rc.initialized
 
     return out_dir.replace(rc.proj_path + "/", "")
@@ -217,7 +219,8 @@ def view_directory(dir_path: str = "./", depth: Optional[int] = None, config: Ru
 
     log_output.append(f"--view_directory: {dir_path} depth: {depth}")
 
-    rc = get_runtime_config(config)
+    # rc = get_runtime_config(config)
+    rc = runtime_config.RuntimeConfig()
     assert rc.initialized
 
     # Normalize dir_path to ensure proper filtering
@@ -351,8 +354,8 @@ def view_file_structure(
     # if not python file, return error message
     if not file_path.endswith('.py'):
         return "View file structure failed. Currenly only support python file."
-
-    rc = get_runtime_config(config)
+    rc = runtime_config.RuntimeConfig()
+    # rc = get_runtime_config(config)
     assert rc.initialized
 
     if rc.runtime_type == RuntimeType.LOCAL:
@@ -370,6 +373,71 @@ def view_file_structure(
         file_content = file_content.output
 
     return parse_content_structure(file_content)
+
+def parse_content_structure(file_content):
+    tree = ast.parse(file_content)
+    outline_str = ""
+    for node in ast.iter_child_nodes(tree):
+        if isinstance(node, ast.ClassDef):
+            class_name = f"Class: {node.name} (line {node.lineno})"
+            class_doc = ast.get_docstring(node) or None
+            outline_str += f"{class_name}\n-- Doc: {class_doc}\n" if class_doc else f"{class_name}\n"
+            for n in node.body:
+                if isinstance(n, ast.FunctionDef):
+                    method_args = [arg.arg for arg in n.args.args]
+                    method_name = f"-- Method: {n.name}({', '.join(method_args)}) (line {n.lineno})"
+                    method_doc = ast.get_docstring(n) or None
+                    outline_str += f"{method_name}\n---- Doc: {method_doc}\n" if method_doc else f"{method_name}\n"
+
+        elif isinstance(node, ast.FunctionDef):
+            func_args = [arg.arg for arg in node.args.args]
+            func_name = f"Function: {node.name}({', '.join(func_args)}) (line {node.lineno})"
+            func_doc = ast.get_docstring(node) or None
+            outline_str += f"{func_name}\n-- Doc: {func_doc}\n" if func_doc else f"{func_name}\n"
+
+    return outline_str
+
+def extract_git_diff_local():
+    """Executes and returns the `git diff` command in a local runtime environment."""
+    rc = runtime_config.RuntimeConfig()
+    print("extracting git diff local")
+    rc.pretty_print_runtime()
+    assert rc.initialized
+    assert rc.runtime_type == runtime_config.RuntimeType.LOCAL
+
+    import subprocess
+
+    process = subprocess.Popen(
+        "/bin/bash",
+        cwd=rc.proj_path,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        text=True,
+        shell=True,
+    )
+    out, err = process.communicate(
+        "git -c core.fileMode=false diff --exit-code --no-color"
+    )
+    return out
+
+
+# %%
+def save_git_diff():
+    print("Saving git diff")
+    rc = runtime_config.RuntimeConfig()
+
+    git_diff_output_before = extract_git_diff_local()
+    instance_id = rc.proj_name.replace("/", "+")
+
+    patch_path = (
+        os.path.join(PATCH_RESULT_DIR, instance_id + "@" + str(int(time.time())))
+        + ".patch"
+    )
+
+    with open(patch_path, "w", encoding="utf-8") as save_file:
+        save_file.write(git_diff_output_before)
+    # print(f"Saved patch content to {patch_path}")
+    return git_diff_output_before
 
 @tool
 def view_file_content(
@@ -395,7 +463,7 @@ def view_file_content(
     Returns:
         str: Content of the file or the specified line range.
     """
-
+    rc = runtime_config.RuntimeConfig()
     log_output = []
     if config:
         agent_name = config.get("configurable", {}).get("agent_name")
@@ -403,7 +471,7 @@ def view_file_content(
     else:
         agent_name = None
 
-    rc = get_runtime_config(config)
+    # rc = get_runtime_config(config)
     assert rc.initialized
     
     if view_range:
@@ -435,7 +503,8 @@ Returns:
     """
     
     # Get runtime config
-    rc = get_runtime_config(config)
+    # rc = get_runtime_config(config)
+    rc = runtime_config.RuntimeConfig()
     assert rc.initialized
     
     # Get project path from runtime config

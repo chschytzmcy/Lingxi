@@ -88,7 +88,7 @@ def mam_node(
 reviewer_agent = create_react_agent(
     llm,
     tools=reviewer_tools,
-    state_modifier=ISSUE_RESOLVE_REVIEWER_SYSTEM_PROMPT,
+    prompt=ISSUE_RESOLVE_REVIEWER_SYSTEM_PROMPT,
 )
 
 

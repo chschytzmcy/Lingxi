@@ -181,7 +181,7 @@ def human_feedback_node(state: CustomState) -> Command[Literal[*members]]:
 problem_decoder_agent = create_react_agent(
     llm,
     tools=problem_decoder_tools,
-    state_modifier=ISSUE_RESOLVE_PROBLEM_DECODER_SYSTEM_PROMPT,
+    prompt=ISSUE_RESOLVE_PROBLEM_DECODER_SYSTEM_PROMPT,
 )
 
 
@@ -202,7 +202,7 @@ def problem_decoder_node(state: CustomState) -> Command[Literal["supervisor"]]:
 solution_mapper_agent = create_react_agent(
     llm,
     tools=solution_mapper_tools,
-    state_modifier=ISSUE_RESOLVE_SOLUTION_MAPPER_SYSTEM_PROMPT,
+    prompt=ISSUE_RESOLVE_SOLUTION_MAPPER_SYSTEM_PROMPT,
 )
 
 
@@ -224,7 +224,7 @@ def solution_mapper_node(state: CustomState) -> Command[Literal["supervisor"]]:
 problem_solver_agent = create_react_agent(
     llm,
     tools=problem_solver_tools,
-    state_modifier=ISSUE_RESOLVE_PROBLEM_SOLVER_SYSTEM_PROMPT,
+    prompt=ISSUE_RESOLVE_PROBLEM_SOLVER_SYSTEM_PROMPT,
 )
 
 

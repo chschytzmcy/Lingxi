@@ -29,6 +29,7 @@ Lingxi v1.5's implementation of SWE-Bench workflow can be accessed at https://do
 		- `LLM_PROVIDER="deepseek"`, set `DEEPSEEK_API_KEY`
 		- Additional provider integrations can be added, see [Langchain Chat Models](https://python.langchain.com/docs/integrations/chat/)
 	4. `OPENAI_API_KEY`: The OpenAI API key to be used. Required for generating embeddings to build project knowledge.
+        - Make sure your OpenAI account has access to the `text-embedding-3-small` model. You can request access from [OpenAI API platform](https://platform.openai.com/).
 	5. `GITHUB_TOKEN`: A GitHub API token used to automatically collect issue report information. It can be generated using a GitHub account through the following menus:
 		- Profile > Settings > Developer Settings > Personal access tokens > Fine-grained tokens
 - Place these environment variables in the `.env` file in the root of the project. This file will be loaded by the prototype on execution
