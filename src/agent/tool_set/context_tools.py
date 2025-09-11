@@ -10,6 +10,7 @@ from langchain_core.tools import tool
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from tqdm import tqdm
+from tree_sitter import QueryCursor
 
 from agent import runtime_config
 from agent.constant import func_queries, query_java_construcor_decs, tree_sitter_parsers
@@ -106,12 +107,12 @@ def create_project_knowledge(
                 tree = parser.parse(file_content.encode())
 
                 func_defs = (
-                    func_queries[file_type_ext].captures(tree.root_node).get("defs", [])
+                    QueryCursor(func_queries[file_type_ext]).captures(tree.root_node).get("defs", [])
                 )
                 if (
                     file_type_ext == "java"
                 ):  # Java contains a "constructor_declaration" node separate from the already queried "method_declarations" nodes
-                    constructor_defs = query_java_construcor_decs.captures(
+                    constructor_defs = QueryCursor(query_java_construcor_decs).captures(
                         tree.root_node
                     ).get("defs", [])
                     func_defs = constructor_defs + func_defs

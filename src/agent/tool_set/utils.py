@@ -25,6 +25,20 @@ def get_runtime_config(config: Optional[RunnableConfig] = None) -> Any:
     # Fall back to global rc
     return runtime_config.RuntimeConfig()
 
+def maybe_truncate(
+    content: str,
+    truncate_after: int | None = MAX_RESPONSE_LEN_CHAR,
+    truncate_notice: str = CONTENT_TRUNCATED_NOTICE,
+) -> str:
+    """
+    Truncate content and append a notice if content exceeds the specified length.
+    """
+    return (
+        content
+        if not truncate_after or len(content) <= truncate_after
+        else content[:truncate_after] + truncate_notice
+    )
+
 def run_shell_local(
     cmd: str,
     timeout: float | None = 120.0,  # seconds

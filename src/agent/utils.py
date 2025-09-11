@@ -13,10 +13,11 @@ from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.runnables import RunnableConfig
 import yaml
 
-from src.agent.logging_config import get_logger
-from src.agent.runtime_config import RuntimeConfig, RuntimeType
-from src.agent.tool_set.utils import get_runtime_config
-from src.utils.format_utils import format_analysis_for_llm
+from agent import runtime_config
+from agent.logging_config import get_logger
+from agent.runtime_config import RuntimeConfig, RuntimeType
+# from agent.tool_set.utils import get_runtime_config
+from utils.format_utils import format_analysis_for_llm
 
 # Setup logging
 logger = get_logger(__name__)
@@ -218,7 +219,8 @@ def replay_agent_action(messages: List, config: RunnableConfig) -> Optional[List
     Returns:
         Optional[List]: List of ToolMessage results from replayed actions, or None if error
     """
-    rc = get_runtime_config(config)
+    # rc = get_runtime_config(config)
+    rc = runtime_config.RuntimeConfig()
     assert rc.initialized
     
     logger.info(f"Starting replay of agent actions with runtime_type: {rc.runtime_type}")

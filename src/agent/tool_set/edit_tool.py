@@ -82,7 +82,8 @@ def str_replace_editor(
         agent_name = None
     
     # Get runtime config to access project path
-    runtime_obj = get_runtime_config(config)
+    runtime_obj = runtime_config.RuntimeConfig()
+    # runtime_obj = get_runtime_config(config)
     proj_path = runtime_obj.proj_path
     log_output.append(f"--str_replace_editor")
 
@@ -115,7 +116,7 @@ def str_replace_editor(
     if result.error:
         log_output.append(f"--str_replace_editor return ERROR: {result.error}")
 
-    logger.info("\n".join(log_output))
+    log_output.append(("\n".join(log_output)))
     return _make_cli_result(result)
 
 
@@ -180,7 +181,8 @@ def str_replace_based_edit_tool(
         agent_name = None
     
     # Get runtime config to access project path
-    runtime_obj = get_runtime_config(config)
+    # runtime_obj = get_runtime_config(config)
+    runtime_obj = runtime_config.RuntimeConfig()
     proj_path = runtime_obj.proj_path
     log_output.append(f"--str_replace_editor(runtime proj_path: {proj_path})")
 
@@ -213,5 +215,5 @@ def str_replace_based_edit_tool(
     if result.error:
         log_output.append(f"--str_replace_editor return ERROR: {result.error}")
 
-    logger.info("\n".join(log_output))
+    log_output.append(("\n".join(log_output)))
     return _make_cli_result(result)

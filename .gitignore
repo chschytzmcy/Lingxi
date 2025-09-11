@@ -25,7 +25,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-.langgraph_api/
+.langgraph_api
+.lingxi.egg-info
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -180,7 +181,7 @@ cython_debug/
 #  more nuclear
 #  option (not recommended) you can uncomment the following to ignore the
 #  entire idea folder.
-#.idea/
+.idea/
 
 # Ruff stuff:
 .ruff_cache/
