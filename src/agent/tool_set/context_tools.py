@@ -27,10 +27,15 @@ load_env_config()
 if "OPENAI_API_KEY" not in os.environ:
     raise UndefinedValueError("OPENAI_API_KEY")
 
-EMBEDDING_FUNCTION = OpenAIEmbeddings(
-    api_key=os.environ.get("OPENAI_API_KEY"),
-    model="text-embedding-3-small",
-)  # Defines the embedding model to use for the VectorDB with use of the `search_relevant_files` tool.
+from langchain_community.embeddings import DashScopeEmbeddings
+EMBEDDING_FUNCTION = DashScopeEmbeddings(
+    dashscope_api_key=os.environ.get("DASHSCOPE_API_KEY"),
+    model="text-embedding-ada-002",  # 或者其他阿里云支持的嵌入模型
+)
+# EMBEDDING_FUNCTION = OpenAIEmbeddings(
+#     api_key=os.environ.get("OPENAI_API_KEY"),
+#     model="text-embedding-3-small",
+# )  # Defines the embedding model to use for the VectorDB with use of the `search_relevant_files` tool.
 PROJECT_KNOWLEDGE_TEXT_SPLITTER = RecursiveCharacterTextSplitter(
     chunk_size=1000, chunk_overlap=256, separators=["\n"]
 )  # Defines the text splitter for the Vector DB with use of the `search_relevant_files` tool.

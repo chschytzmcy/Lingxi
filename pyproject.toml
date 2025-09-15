@@ -45,6 +45,7 @@ dependencies = [
     "rapidfuzz",
     "json-repair",
     "sb-cli>=0.1.5",
+    "dashscope>=1.24.4",
 ]
 
 
